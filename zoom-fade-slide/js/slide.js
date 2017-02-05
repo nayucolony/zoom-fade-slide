@@ -1,27 +1,54 @@
 $(window).load(function(){
-var slide = $(".slideshow");
-var i = 0;
-slide.find('.item').eq(i).fadeIn(2000).addClass('in');
-var total = $(".slideshow .item").length -1;
-setInterval(function(){
-  if(i < total){
-  slide.find('.item').eq(i).addClass('out');
-  slide.find('.item').eq(i).removeClass('in');
-    j = i;
-    i++;
+  var slide = $(".slideshow");
+  var count = 0;
+  var total = $(".slideshow .item").length -1;
+
+  // 以下２つで時間調整
+  var transitionTime = 3500;
+  var intervalTime = 1000;
+  // 自動算出なので扱わない
+  var fadeOutTime = transitionTime + intervalTime;
+
+  // スライドのクラス状態を変更
+  var transformSlide = function(){
+    slide.find('.item').eq(count).addClass('out');
+    slide.find('.item').eq(count).removeClass('in');
+  }
+
+  // スライダー画像変更
+  var changeSlide = function(){
     setTimeout(function(){
-      slide.find('.item').eq(i).fadeIn(3500).addClass('in').removeClass('out');
-    },1000);
-    slide.find('.item').eq(j).fadeOut(4500);
-  } else if(i == total){
-  slide.find('.item').eq(i).addClass('out');
-  slide.find('.item').eq(i).removeClass('in');
-    j = i;
-    i = 0;
-    setTimeout(function(){
-      slide.find('.item').eq(i).fadeIn(3500).addClass('in').removeClass('out');
-    },1000);
-    slide.find('.item').eq(j).fadeOut(4500);
-  };
-},4500);
+      slide.find('.item').eq(nextNumber).fadeIn(transitionTime).toggleClass('in').removeClass('out');
+    },intervalTime);
+    slide.find('.item').eq(currentNumber).fadeOut(fadeOutTime);
+  }
+
+  // 次に行く処理
+  var goNext = function(){
+    transformSlide();
+    currentNumber = count;
+    nextNumber = count + 1;
+    changeSlide();
+  }
+
+  // 最初に戻る処理
+  var goFirst = function(){
+    transformSlide();
+    currentNumber = count;
+    nextNumber = 0;
+    changeSlide();
+  }
+
+  // 最初の一枚を出現
+  slide.find('.item').eq(count).fadeIn(transitionTime).addClass('in');
+  // 二枚目以降は一定時間ごとにスライドを変更
+  setInterval(function(){
+    if(count < total){
+      goNext();
+      count++;
+    } else if(count == total){
+      goFirst();
+      count = 0;
+    };
+  },fadeOutTime);
 });
